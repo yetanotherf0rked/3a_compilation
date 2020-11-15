@@ -1,0 +1,1167 @@
+Terminals unused in grammar
+
+   TK_PLUSPLUS
+   TK_CHAR
+   TK_STRING
+   TK_FOR
+
+
+State 90 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: prog $end
+
+    1 type: TK_INT_TYPE
+    2     | TK_VOID_TYPE
+
+    3 e_expr: e_expr TK_PLUS t_expr
+    4       | e_expr TK_MINUS t_expr
+    5       | t_expr
+
+    6 t_expr: t_expr TK_MUL f_expr
+    7       | t_expr TK_DIV f_expr
+    8       | f_expr
+
+    9 f_expr: TK_NUM
+   10       | TK_ID
+   11       | TK_ID TK_LPAR caller_arg_list TK_RPAR
+   12       | TK_LPAR e_expr TK_RPAR
+
+   13 expr: e_expr
+
+   14 test: expr TK_GREATER expr
+   15     | expr TK_NEQ expr
+   16     | expr TK_EQ expr
+   17     | TK_LPAR test TK_RPAR
+
+   18 stmt: TK_ID TK_ASSIGN expr TK_SEMI
+
+   19 $@1: %empty
+
+   20 $@2: %empty
+
+   21 stmt: TK_IF test $@1 stmt_block $@2 stmt_else
+
+   22 $@3: %empty
+
+   23 $@4: %empty
+
+   24 stmt: TK_WHILE $@3 test $@4 stmt_block
+
+   25 $@5: %empty
+
+   26 stmt: TK_DO $@5 stmt_block TK_WHILE test TK_SEMI
+   27     | TK_RETURN expr TK_SEMI
+   28     | TK_PRINT TK_LPAR expr TK_RPAR TK_SEMI
+   29     | TK_INPUT TK_LPAR TK_ID TK_RPAR TK_SEMI
+
+   30 stmt_else: %empty
+   31          | TK_ELSE stmt_block
+
+   32 stmt_block: stmt
+   33           | TK_LACC stmt_list TK_RACC
+
+   34 stmt_list: %empty
+   35          | stmt_list stmt
+
+   36 declare_args: %empty
+   37             | type TK_ID
+   38             | type TK_ID TK_COMMA declare_args
+
+   39 declare_local_vars: %empty
+   40                   | declare_local_vars type TK_ID TK_SEMI
+
+   41 caller_arg_list: %empty
+   42                | expr
+   43                | caller_arg_list TK_COMMA expr
+
+   44 $@6: %empty
+
+   45 $@7: %empty
+
+   46 $@8: %empty
+
+   47 function: type TK_ID TK_LPAR $@6 declare_args TK_RPAR TK_LACC declare_local_vars $@7 stmt_list $@8 TK_RACC
+
+   48 function_list: %empty
+   49              | function_list function
+
+   50 $@9: %empty
+
+   51 prog: $@9 function_list function
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+TK_INT_TYPE (258) 1
+TK_VOID_TYPE (259) 2
+TK_LPAR (260) 11 12 17 28 29 47
+TK_RPAR (261) 11 12 17 28 29 47
+TK_COMMA (262) 38 43
+TK_SEMI (263) 18 26 27 28 29 40
+TK_LACC (264) 33 47
+TK_RACC (265) 33 47
+TK_GREATER (266) 14
+TK_NEQ (267) 15
+TK_EQ (268) 16
+TK_PLUS (269) 3
+TK_MINUS (270) 4
+TK_MUL (271) 6
+TK_PLUSPLUS (272)
+TK_NUM (273) 9
+TK_ID (274) 10 11 18 29 37 38 40 47
+TK_CHAR (275)
+TK_STRING (276)
+TK_ASSIGN (277) 18
+TK_IF (278) 21
+TK_ELSE (279) 31
+TK_WHILE (280) 24 26
+TK_DO (281) 26
+TK_FOR (282)
+TK_RETURN (283) 27
+TK_PRINT (284) 28
+TK_INPUT (285) 29
+TK_DIV (286) 7
+
+
+Nonterminals, with rules where they appear
+
+$accept (32)
+    on left: 0
+type (33)
+    on left: 1 2, on right: 37 38 40 47
+e_expr (34)
+    on left: 3 4 5, on right: 3 4 12 13
+t_expr (35)
+    on left: 6 7 8, on right: 3 4 5 6 7
+f_expr (36)
+    on left: 9 10 11 12, on right: 6 7 8
+expr (37)
+    on left: 13, on right: 14 15 16 18 27 28 42 43
+test (38)
+    on left: 14 15 16 17, on right: 17 21 24 26
+stmt (39)
+    on left: 18 21 24 26 27 28 29, on right: 32 35
+$@1 (40)
+    on left: 19, on right: 21
+$@2 (41)
+    on left: 20, on right: 21
+$@3 (42)
+    on left: 22, on right: 24
+$@4 (43)
+    on left: 23, on right: 24
+$@5 (44)
+    on left: 25, on right: 26
+stmt_else (45)
+    on left: 30 31, on right: 21
+stmt_block (46)
+    on left: 32 33, on right: 21 24 26 31
+stmt_list (47)
+    on left: 34 35, on right: 33 35 47
+declare_args (48)
+    on left: 36 37 38, on right: 38 47
+declare_local_vars (49)
+    on left: 39 40, on right: 40 47
+caller_arg_list (50)
+    on left: 41 42 43, on right: 11 43
+function (51)
+    on left: 47, on right: 49 51
+$@6 (52)
+    on left: 44, on right: 47
+$@7 (53)
+    on left: 45, on right: 47
+$@8 (54)
+    on left: 46, on right: 47
+function_list (55)
+    on left: 48 49, on right: 49 51
+prog (56)
+    on left: 51, on right: 0
+$@9 (57)
+    on left: 50, on right: 51
+
+
+State 0
+
+    0 $accept: . prog $end
+
+    $default  reduce using rule 50 ($@9)
+
+    prog  go to state 1
+    $@9   go to state 2
+
+
+State 1
+
+    0 $accept: prog . $end
+
+    $end  shift, and go to state 3
+
+
+State 2
+
+   51 prog: $@9 . function_list function
+
+    $default  reduce using rule 48 (function_list)
+
+    function_list  go to state 4
+
+
+State 3
+
+    0 $accept: prog $end .
+
+    $default  accept
+
+
+State 4
+
+   49 function_list: function_list . function
+   51 prog: $@9 function_list . function
+
+    TK_INT_TYPE   shift, and go to state 5
+    TK_VOID_TYPE  shift, and go to state 6
+
+    type      go to state 7
+    function  go to state 8
+
+
+State 5
+
+    1 type: TK_INT_TYPE .
+
+    $default  reduce using rule 1 (type)
+
+
+State 6
+
+    2 type: TK_VOID_TYPE .
+
+    $default  reduce using rule 2 (type)
+
+
+State 7
+
+   47 function: type . TK_ID TK_LPAR $@6 declare_args TK_RPAR TK_LACC declare_local_vars $@7 stmt_list $@8 TK_RACC
+
+    TK_ID  shift, and go to state 9
+
+
+State 8
+
+   49 function_list: function_list function .  [TK_INT_TYPE, TK_VOID_TYPE]
+   51 prog: $@9 function_list function .  [$end]
+
+    $end      reduce using rule 51 (prog)
+    $default  reduce using rule 49 (function_list)
+
+
+State 9
+
+   47 function: type TK_ID . TK_LPAR $@6 declare_args TK_RPAR TK_LACC declare_local_vars $@7 stmt_list $@8 TK_RACC
+
+    TK_LPAR  shift, and go to state 10
+
+
+State 10
+
+   47 function: type TK_ID TK_LPAR . $@6 declare_args TK_RPAR TK_LACC declare_local_vars $@7 stmt_list $@8 TK_RACC
+
+    $default  reduce using rule 44 ($@6)
+
+    $@6  go to state 11
+
+
+State 11
+
+   47 function: type TK_ID TK_LPAR $@6 . declare_args TK_RPAR TK_LACC declare_local_vars $@7 stmt_list $@8 TK_RACC
+
+    TK_INT_TYPE   shift, and go to state 5
+    TK_VOID_TYPE  shift, and go to state 6
+
+    $default  reduce using rule 36 (declare_args)
+
+    type          go to state 12
+    declare_args  go to state 13
+
+
+State 12
+
+   37 declare_args: type . TK_ID
+   38             | type . TK_ID TK_COMMA declare_args
+
+    TK_ID  shift, and go to state 14
+
+
+State 13
+
+   47 function: type TK_ID TK_LPAR $@6 declare_args . TK_RPAR TK_LACC declare_local_vars $@7 stmt_list $@8 TK_RACC
+
+    TK_RPAR  shift, and go to state 15
+
+
+State 14
+
+   37 declare_args: type TK_ID .  [TK_RPAR]
+   38             | type TK_ID . TK_COMMA declare_args
+
+    TK_COMMA  shift, and go to state 16
+
+    $default  reduce using rule 37 (declare_args)
+
+
+State 15
+
+   47 function: type TK_ID TK_LPAR $@6 declare_args TK_RPAR . TK_LACC declare_local_vars $@7 stmt_list $@8 TK_RACC
+
+    TK_LACC  shift, and go to state 17
+
+
+State 16
+
+   38 declare_args: type TK_ID TK_COMMA . declare_args
+
+    TK_INT_TYPE   shift, and go to state 5
+    TK_VOID_TYPE  shift, and go to state 6
+
+    $default  reduce using rule 36 (declare_args)
+
+    type          go to state 12
+    declare_args  go to state 18
+
+
+State 17
+
+   47 function: type TK_ID TK_LPAR $@6 declare_args TK_RPAR TK_LACC . declare_local_vars $@7 stmt_list $@8 TK_RACC
+
+    $default  reduce using rule 39 (declare_local_vars)
+
+    declare_local_vars  go to state 19
+
+
+State 18
+
+   38 declare_args: type TK_ID TK_COMMA declare_args .
+
+    $default  reduce using rule 38 (declare_args)
+
+
+State 19
+
+   40 declare_local_vars: declare_local_vars . type TK_ID TK_SEMI
+   47 function: type TK_ID TK_LPAR $@6 declare_args TK_RPAR TK_LACC declare_local_vars . $@7 stmt_list $@8 TK_RACC
+
+    TK_INT_TYPE   shift, and go to state 5
+    TK_VOID_TYPE  shift, and go to state 6
+
+    $default  reduce using rule 45 ($@7)
+
+    type  go to state 20
+    $@7   go to state 21
+
+
+State 20
+
+   40 declare_local_vars: declare_local_vars type . TK_ID TK_SEMI
+
+    TK_ID  shift, and go to state 22
+
+
+State 21
+
+   47 function: type TK_ID TK_LPAR $@6 declare_args TK_RPAR TK_LACC declare_local_vars $@7 . stmt_list $@8 TK_RACC
+
+    $default  reduce using rule 34 (stmt_list)
+
+    stmt_list  go to state 23
+
+
+State 22
+
+   40 declare_local_vars: declare_local_vars type TK_ID . TK_SEMI
+
+    TK_SEMI  shift, and go to state 24
+
+
+State 23
+
+   35 stmt_list: stmt_list . stmt
+   47 function: type TK_ID TK_LPAR $@6 declare_args TK_RPAR TK_LACC declare_local_vars $@7 stmt_list . $@8 TK_RACC
+
+    TK_ID      shift, and go to state 25
+    TK_IF      shift, and go to state 26
+    TK_WHILE   shift, and go to state 27
+    TK_DO      shift, and go to state 28
+    TK_RETURN  shift, and go to state 29
+    TK_PRINT   shift, and go to state 30
+    TK_INPUT   shift, and go to state 31
+
+    $default  reduce using rule 46 ($@8)
+
+    stmt  go to state 32
+    $@8   go to state 33
+
+
+State 24
+
+   40 declare_local_vars: declare_local_vars type TK_ID TK_SEMI .
+
+    $default  reduce using rule 40 (declare_local_vars)
+
+
+State 25
+
+   18 stmt: TK_ID . TK_ASSIGN expr TK_SEMI
+
+    TK_ASSIGN  shift, and go to state 34
+
+
+State 26
+
+   21 stmt: TK_IF . test $@1 stmt_block $@2 stmt_else
+
+    TK_LPAR  shift, and go to state 35
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    e_expr  go to state 38
+    t_expr  go to state 39
+    f_expr  go to state 40
+    expr    go to state 41
+    test    go to state 42
+
+
+State 27
+
+   24 stmt: TK_WHILE . $@3 test $@4 stmt_block
+
+    $default  reduce using rule 22 ($@3)
+
+    $@3  go to state 43
+
+
+State 28
+
+   26 stmt: TK_DO . $@5 stmt_block TK_WHILE test TK_SEMI
+
+    $default  reduce using rule 25 ($@5)
+
+    $@5  go to state 44
+
+
+State 29
+
+   27 stmt: TK_RETURN . expr TK_SEMI
+
+    TK_LPAR  shift, and go to state 45
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    e_expr  go to state 38
+    t_expr  go to state 39
+    f_expr  go to state 40
+    expr    go to state 46
+
+
+State 30
+
+   28 stmt: TK_PRINT . TK_LPAR expr TK_RPAR TK_SEMI
+
+    TK_LPAR  shift, and go to state 47
+
+
+State 31
+
+   29 stmt: TK_INPUT . TK_LPAR TK_ID TK_RPAR TK_SEMI
+
+    TK_LPAR  shift, and go to state 48
+
+
+State 32
+
+   35 stmt_list: stmt_list stmt .
+
+    $default  reduce using rule 35 (stmt_list)
+
+
+State 33
+
+   47 function: type TK_ID TK_LPAR $@6 declare_args TK_RPAR TK_LACC declare_local_vars $@7 stmt_list $@8 . TK_RACC
+
+    TK_RACC  shift, and go to state 49
+
+
+State 34
+
+   18 stmt: TK_ID TK_ASSIGN . expr TK_SEMI
+
+    TK_LPAR  shift, and go to state 45
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    e_expr  go to state 38
+    t_expr  go to state 39
+    f_expr  go to state 40
+    expr    go to state 50
+
+
+State 35
+
+   12 f_expr: TK_LPAR . e_expr TK_RPAR
+   17 test: TK_LPAR . test TK_RPAR
+
+    TK_LPAR  shift, and go to state 35
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    e_expr  go to state 51
+    t_expr  go to state 39
+    f_expr  go to state 40
+    expr    go to state 41
+    test    go to state 52
+
+
+State 36
+
+    9 f_expr: TK_NUM .
+
+    $default  reduce using rule 9 (f_expr)
+
+
+State 37
+
+   10 f_expr: TK_ID .  [TK_RPAR, TK_COMMA, TK_SEMI, TK_LACC, TK_GREATER, TK_NEQ, TK_EQ, TK_PLUS, TK_MINUS, TK_MUL, TK_ID, TK_IF, TK_WHILE, TK_DO, TK_RETURN, TK_PRINT, TK_INPUT, TK_DIV]
+   11       | TK_ID . TK_LPAR caller_arg_list TK_RPAR
+
+    TK_LPAR  shift, and go to state 53
+
+    $default  reduce using rule 10 (f_expr)
+
+
+State 38
+
+    3 e_expr: e_expr . TK_PLUS t_expr
+    4       | e_expr . TK_MINUS t_expr
+   13 expr: e_expr .  [TK_RPAR, TK_COMMA, TK_SEMI, TK_LACC, TK_GREATER, TK_NEQ, TK_EQ, TK_ID, TK_IF, TK_WHILE, TK_DO, TK_RETURN, TK_PRINT, TK_INPUT]
+
+    TK_PLUS   shift, and go to state 54
+    TK_MINUS  shift, and go to state 55
+
+    $default  reduce using rule 13 (expr)
+
+
+State 39
+
+    5 e_expr: t_expr .  [TK_RPAR, TK_COMMA, TK_SEMI, TK_LACC, TK_GREATER, TK_NEQ, TK_EQ, TK_PLUS, TK_MINUS, TK_ID, TK_IF, TK_WHILE, TK_DO, TK_RETURN, TK_PRINT, TK_INPUT]
+    6 t_expr: t_expr . TK_MUL f_expr
+    7       | t_expr . TK_DIV f_expr
+
+    TK_MUL  shift, and go to state 56
+    TK_DIV  shift, and go to state 57
+
+    $default  reduce using rule 5 (e_expr)
+
+
+State 40
+
+    8 t_expr: f_expr .
+
+    $default  reduce using rule 8 (t_expr)
+
+
+State 41
+
+   14 test: expr . TK_GREATER expr
+   15     | expr . TK_NEQ expr
+   16     | expr . TK_EQ expr
+
+    TK_GREATER  shift, and go to state 58
+    TK_NEQ      shift, and go to state 59
+    TK_EQ       shift, and go to state 60
+
+
+State 42
+
+   21 stmt: TK_IF test . $@1 stmt_block $@2 stmt_else
+
+    $default  reduce using rule 19 ($@1)
+
+    $@1  go to state 61
+
+
+State 43
+
+   24 stmt: TK_WHILE $@3 . test $@4 stmt_block
+
+    TK_LPAR  shift, and go to state 35
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    e_expr  go to state 38
+    t_expr  go to state 39
+    f_expr  go to state 40
+    expr    go to state 41
+    test    go to state 62
+
+
+State 44
+
+   26 stmt: TK_DO $@5 . stmt_block TK_WHILE test TK_SEMI
+
+    TK_LACC    shift, and go to state 63
+    TK_ID      shift, and go to state 25
+    TK_IF      shift, and go to state 26
+    TK_WHILE   shift, and go to state 27
+    TK_DO      shift, and go to state 28
+    TK_RETURN  shift, and go to state 29
+    TK_PRINT   shift, and go to state 30
+    TK_INPUT   shift, and go to state 31
+
+    stmt        go to state 64
+    stmt_block  go to state 65
+
+
+State 45
+
+   12 f_expr: TK_LPAR . e_expr TK_RPAR
+
+    TK_LPAR  shift, and go to state 45
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    e_expr  go to state 66
+    t_expr  go to state 39
+    f_expr  go to state 40
+
+
+State 46
+
+   27 stmt: TK_RETURN expr . TK_SEMI
+
+    TK_SEMI  shift, and go to state 67
+
+
+State 47
+
+   28 stmt: TK_PRINT TK_LPAR . expr TK_RPAR TK_SEMI
+
+    TK_LPAR  shift, and go to state 45
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    e_expr  go to state 38
+    t_expr  go to state 39
+    f_expr  go to state 40
+    expr    go to state 68
+
+
+State 48
+
+   29 stmt: TK_INPUT TK_LPAR . TK_ID TK_RPAR TK_SEMI
+
+    TK_ID  shift, and go to state 69
+
+
+State 49
+
+   47 function: type TK_ID TK_LPAR $@6 declare_args TK_RPAR TK_LACC declare_local_vars $@7 stmt_list $@8 TK_RACC .
+
+    $default  reduce using rule 47 (function)
+
+
+State 50
+
+   18 stmt: TK_ID TK_ASSIGN expr . TK_SEMI
+
+    TK_SEMI  shift, and go to state 70
+
+
+State 51
+
+    3 e_expr: e_expr . TK_PLUS t_expr
+    4       | e_expr . TK_MINUS t_expr
+   12 f_expr: TK_LPAR e_expr . TK_RPAR
+   13 expr: e_expr .  [TK_GREATER, TK_NEQ, TK_EQ]
+
+    TK_RPAR   shift, and go to state 71
+    TK_PLUS   shift, and go to state 54
+    TK_MINUS  shift, and go to state 55
+
+    $default  reduce using rule 13 (expr)
+
+
+State 52
+
+   17 test: TK_LPAR test . TK_RPAR
+
+    TK_RPAR  shift, and go to state 72
+
+
+State 53
+
+   11 f_expr: TK_ID TK_LPAR . caller_arg_list TK_RPAR
+
+    TK_LPAR  shift, and go to state 45
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    $default  reduce using rule 41 (caller_arg_list)
+
+    e_expr           go to state 38
+    t_expr           go to state 39
+    f_expr           go to state 40
+    expr             go to state 73
+    caller_arg_list  go to state 74
+
+
+State 54
+
+    3 e_expr: e_expr TK_PLUS . t_expr
+
+    TK_LPAR  shift, and go to state 45
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    t_expr  go to state 75
+    f_expr  go to state 40
+
+
+State 55
+
+    4 e_expr: e_expr TK_MINUS . t_expr
+
+    TK_LPAR  shift, and go to state 45
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    t_expr  go to state 76
+    f_expr  go to state 40
+
+
+State 56
+
+    6 t_expr: t_expr TK_MUL . f_expr
+
+    TK_LPAR  shift, and go to state 45
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    f_expr  go to state 77
+
+
+State 57
+
+    7 t_expr: t_expr TK_DIV . f_expr
+
+    TK_LPAR  shift, and go to state 45
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    f_expr  go to state 78
+
+
+State 58
+
+   14 test: expr TK_GREATER . expr
+
+    TK_LPAR  shift, and go to state 45
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    e_expr  go to state 38
+    t_expr  go to state 39
+    f_expr  go to state 40
+    expr    go to state 79
+
+
+State 59
+
+   15 test: expr TK_NEQ . expr
+
+    TK_LPAR  shift, and go to state 45
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    e_expr  go to state 38
+    t_expr  go to state 39
+    f_expr  go to state 40
+    expr    go to state 80
+
+
+State 60
+
+   16 test: expr TK_EQ . expr
+
+    TK_LPAR  shift, and go to state 45
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    e_expr  go to state 38
+    t_expr  go to state 39
+    f_expr  go to state 40
+    expr    go to state 81
+
+
+State 61
+
+   21 stmt: TK_IF test $@1 . stmt_block $@2 stmt_else
+
+    TK_LACC    shift, and go to state 63
+    TK_ID      shift, and go to state 25
+    TK_IF      shift, and go to state 26
+    TK_WHILE   shift, and go to state 27
+    TK_DO      shift, and go to state 28
+    TK_RETURN  shift, and go to state 29
+    TK_PRINT   shift, and go to state 30
+    TK_INPUT   shift, and go to state 31
+
+    stmt        go to state 64
+    stmt_block  go to state 82
+
+
+State 62
+
+   24 stmt: TK_WHILE $@3 test . $@4 stmt_block
+
+    $default  reduce using rule 23 ($@4)
+
+    $@4  go to state 83
+
+
+State 63
+
+   33 stmt_block: TK_LACC . stmt_list TK_RACC
+
+    $default  reduce using rule 34 (stmt_list)
+
+    stmt_list  go to state 84
+
+
+State 64
+
+   32 stmt_block: stmt .
+
+    $default  reduce using rule 32 (stmt_block)
+
+
+State 65
+
+   26 stmt: TK_DO $@5 stmt_block . TK_WHILE test TK_SEMI
+
+    TK_WHILE  shift, and go to state 85
+
+
+State 66
+
+    3 e_expr: e_expr . TK_PLUS t_expr
+    4       | e_expr . TK_MINUS t_expr
+   12 f_expr: TK_LPAR e_expr . TK_RPAR
+
+    TK_RPAR   shift, and go to state 71
+    TK_PLUS   shift, and go to state 54
+    TK_MINUS  shift, and go to state 55
+
+
+State 67
+
+   27 stmt: TK_RETURN expr TK_SEMI .
+
+    $default  reduce using rule 27 (stmt)
+
+
+State 68
+
+   28 stmt: TK_PRINT TK_LPAR expr . TK_RPAR TK_SEMI
+
+    TK_RPAR  shift, and go to state 86
+
+
+State 69
+
+   29 stmt: TK_INPUT TK_LPAR TK_ID . TK_RPAR TK_SEMI
+
+    TK_RPAR  shift, and go to state 87
+
+
+State 70
+
+   18 stmt: TK_ID TK_ASSIGN expr TK_SEMI .
+
+    $default  reduce using rule 18 (stmt)
+
+
+State 71
+
+   12 f_expr: TK_LPAR e_expr TK_RPAR .
+
+    $default  reduce using rule 12 (f_expr)
+
+
+State 72
+
+   17 test: TK_LPAR test TK_RPAR .
+
+    $default  reduce using rule 17 (test)
+
+
+State 73
+
+   42 caller_arg_list: expr .
+
+    $default  reduce using rule 42 (caller_arg_list)
+
+
+State 74
+
+   11 f_expr: TK_ID TK_LPAR caller_arg_list . TK_RPAR
+   43 caller_arg_list: caller_arg_list . TK_COMMA expr
+
+    TK_RPAR   shift, and go to state 88
+    TK_COMMA  shift, and go to state 89
+
+
+State 75
+
+    3 e_expr: e_expr TK_PLUS t_expr .  [TK_RPAR, TK_COMMA, TK_SEMI, TK_LACC, TK_GREATER, TK_NEQ, TK_EQ, TK_PLUS, TK_MINUS, TK_ID, TK_IF, TK_WHILE, TK_DO, TK_RETURN, TK_PRINT, TK_INPUT]
+    6 t_expr: t_expr . TK_MUL f_expr
+    7       | t_expr . TK_DIV f_expr
+
+    TK_MUL  shift, and go to state 56
+    TK_DIV  shift, and go to state 57
+
+    $default  reduce using rule 3 (e_expr)
+
+
+State 76
+
+    4 e_expr: e_expr TK_MINUS t_expr .  [TK_RPAR, TK_COMMA, TK_SEMI, TK_LACC, TK_GREATER, TK_NEQ, TK_EQ, TK_PLUS, TK_MINUS, TK_ID, TK_IF, TK_WHILE, TK_DO, TK_RETURN, TK_PRINT, TK_INPUT]
+    6 t_expr: t_expr . TK_MUL f_expr
+    7       | t_expr . TK_DIV f_expr
+
+    TK_MUL  shift, and go to state 56
+    TK_DIV  shift, and go to state 57
+
+    $default  reduce using rule 4 (e_expr)
+
+
+State 77
+
+    6 t_expr: t_expr TK_MUL f_expr .
+
+    $default  reduce using rule 6 (t_expr)
+
+
+State 78
+
+    7 t_expr: t_expr TK_DIV f_expr .
+
+    $default  reduce using rule 7 (t_expr)
+
+
+State 79
+
+   14 test: expr TK_GREATER expr .
+
+    $default  reduce using rule 14 (test)
+
+
+State 80
+
+   15 test: expr TK_NEQ expr .
+
+    $default  reduce using rule 15 (test)
+
+
+State 81
+
+   16 test: expr TK_EQ expr .
+
+    $default  reduce using rule 16 (test)
+
+
+State 82
+
+   21 stmt: TK_IF test $@1 stmt_block . $@2 stmt_else
+
+    $default  reduce using rule 20 ($@2)
+
+    $@2  go to state 90
+
+
+State 83
+
+   24 stmt: TK_WHILE $@3 test $@4 . stmt_block
+
+    TK_LACC    shift, and go to state 63
+    TK_ID      shift, and go to state 25
+    TK_IF      shift, and go to state 26
+    TK_WHILE   shift, and go to state 27
+    TK_DO      shift, and go to state 28
+    TK_RETURN  shift, and go to state 29
+    TK_PRINT   shift, and go to state 30
+    TK_INPUT   shift, and go to state 31
+
+    stmt        go to state 64
+    stmt_block  go to state 91
+
+
+State 84
+
+   33 stmt_block: TK_LACC stmt_list . TK_RACC
+   35 stmt_list: stmt_list . stmt
+
+    TK_RACC    shift, and go to state 92
+    TK_ID      shift, and go to state 25
+    TK_IF      shift, and go to state 26
+    TK_WHILE   shift, and go to state 27
+    TK_DO      shift, and go to state 28
+    TK_RETURN  shift, and go to state 29
+    TK_PRINT   shift, and go to state 30
+    TK_INPUT   shift, and go to state 31
+
+    stmt  go to state 32
+
+
+State 85
+
+   26 stmt: TK_DO $@5 stmt_block TK_WHILE . test TK_SEMI
+
+    TK_LPAR  shift, and go to state 35
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    e_expr  go to state 38
+    t_expr  go to state 39
+    f_expr  go to state 40
+    expr    go to state 41
+    test    go to state 93
+
+
+State 86
+
+   28 stmt: TK_PRINT TK_LPAR expr TK_RPAR . TK_SEMI
+
+    TK_SEMI  shift, and go to state 94
+
+
+State 87
+
+   29 stmt: TK_INPUT TK_LPAR TK_ID TK_RPAR . TK_SEMI
+
+    TK_SEMI  shift, and go to state 95
+
+
+State 88
+
+   11 f_expr: TK_ID TK_LPAR caller_arg_list TK_RPAR .
+
+    $default  reduce using rule 11 (f_expr)
+
+
+State 89
+
+   43 caller_arg_list: caller_arg_list TK_COMMA . expr
+
+    TK_LPAR  shift, and go to state 45
+    TK_NUM   shift, and go to state 36
+    TK_ID    shift, and go to state 37
+
+    e_expr  go to state 38
+    t_expr  go to state 39
+    f_expr  go to state 40
+    expr    go to state 96
+
+
+State 90
+
+   21 stmt: TK_IF test $@1 stmt_block $@2 . stmt_else
+
+    TK_ELSE  shift, and go to state 97
+
+    TK_ELSE   [reduce using rule 30 (stmt_else)]
+    $default  reduce using rule 30 (stmt_else)
+
+    stmt_else  go to state 98
+
+
+State 91
+
+   24 stmt: TK_WHILE $@3 test $@4 stmt_block .
+
+    $default  reduce using rule 24 (stmt)
+
+
+State 92
+
+   33 stmt_block: TK_LACC stmt_list TK_RACC .
+
+    $default  reduce using rule 33 (stmt_block)
+
+
+State 93
+
+   26 stmt: TK_DO $@5 stmt_block TK_WHILE test . TK_SEMI
+
+    TK_SEMI  shift, and go to state 99
+
+
+State 94
+
+   28 stmt: TK_PRINT TK_LPAR expr TK_RPAR TK_SEMI .
+
+    $default  reduce using rule 28 (stmt)
+
+
+State 95
+
+   29 stmt: TK_INPUT TK_LPAR TK_ID TK_RPAR TK_SEMI .
+
+    $default  reduce using rule 29 (stmt)
+
+
+State 96
+
+   43 caller_arg_list: caller_arg_list TK_COMMA expr .
+
+    $default  reduce using rule 43 (caller_arg_list)
+
+
+State 97
+
+   31 stmt_else: TK_ELSE . stmt_block
+
+    TK_LACC    shift, and go to state 63
+    TK_ID      shift, and go to state 25
+    TK_IF      shift, and go to state 26
+    TK_WHILE   shift, and go to state 27
+    TK_DO      shift, and go to state 28
+    TK_RETURN  shift, and go to state 29
+    TK_PRINT   shift, and go to state 30
+    TK_INPUT   shift, and go to state 31
+
+    stmt        go to state 64
+    stmt_block  go to state 100
+
+
+State 98
+
+   21 stmt: TK_IF test $@1 stmt_block $@2 stmt_else .
+
+    $default  reduce using rule 21 (stmt)
+
+
+State 99
+
+   26 stmt: TK_DO $@5 stmt_block TK_WHILE test TK_SEMI .
+
+    $default  reduce using rule 26 (stmt)
+
+
+State 100
+
+   31 stmt_else: TK_ELSE stmt_block .
+
+    $default  reduce using rule 31 (stmt_else)

@@ -1,0 +1,316 @@
+/* TD2 COMPILATION - ACTIVATIONS - IMPLÉMENTATION - Nawfal Massine MALKI - STI
+ * 3A - INSA CVL /*
+
+/* ============================================================== */
+/*                             C PRELUDE                          */
+/* ============================================================== */
+
+%{
+#include "Label.h"
+#include "SymbolTable.h"
+#include "Backend.h"
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <iostream>
+
+using namespace std;
+
+int		line_number	= 1;	/* number of current source line */
+extern int	yylex();	/* lexical analyzer generated from lex.l */
+extern char	*yytext;	/* last token, defined in lex.l  */
+
+void yyerror(char *s)
+  { fprintf(stderr, 
+	    "Line %d: syntax error. Last token was \"%s\"\n",
+	    line_number, yytext);
+    exit(1);
+  }
+void error(char *s)
+  { fprintf(stderr, 
+	    "Line %d: error: %s\n", line_number, s);
+    exit(1);
+  }
+
+%}
+
+/* ============================================================== */
+/*                     TYPES OF NON-TERMINALS                     */         
+/* ============================================================== */
+
+%union
+{
+  int integer;
+  char* id_string;
+}
+
+
+/* ============================================================== */
+/*                       TOKENS DECLARATION
+/* ============================================================== */
+
+/* Types */
+
+%token TK_INT_TYPE TK_VOID_TYPE
+
+/* délimiteurs */
+%token TK_LPAR TK_RPAR
+%token TK_COMMA TK_SEMI
+%token TK_LACC TK_RACC
+
+/* opérations mixtes */
+%token TK_GREATER TK_NEQ TK_EQ
+
+/* opérations arithmétiques */
+%token TK_PLUS TK_MINUS TK_MUL TK_PLUSPLUS
+%token TK_NUM
+%token TK_ID
+
+/* chaines de caractères */
+%token TK_CHAR TK_STRING
+
+/* controle */
+%token TK_ASSIGN TK_IF TK_ELSE TK_WHILE TK_DO
+%token TK_FOR
+%token TK_RETURN
+
+/* built-in functions */
+%token TK_PRINT TK_INPUT
+
+/* associativité */
+%left TK_PLUS TK_MINUS
+%left TK_MUL TK_DIV
+
+%type<id_string> TK_ID
+%type<integer> TK_NUM
+
+/* axiom */
+%start prog
+
+%%
+
+/* ============================================================== */
+/*               GRAMMAR ITSELF WITH SEMANTIC ACTIONS             */
+/* ============================================================== */
+
+/* -------------------------------------------------------------- */
+/*                     0/ Type declaration                        */
+/* -------------------------------------------------------------- */
+
+type:
+  TK_INT_TYPE
+| TK_VOID_TYPE
+;
+
+/* -------------------------------------------------------------- */
+/*                  1/ Expressions (e.g. 2*x+y)                   */
+/* -------------------------------------------------------------- */
+
+//ETF (sub-)grammar
+
+e_expr: 
+  e_expr TK_PLUS t_expr { add(); }
+| e_expr TK_MINUS t_expr { sub(); }
+| t_expr 
+;
+
+t_expr: 
+  t_expr TK_MUL f_expr { mul(); }
+| t_expr TK_DIV f_expr { div(); }
+| f_expr
+;
+
+f_expr: 
+  TK_NUM { mpush($1); }
+| TK_ID { push(get_slot($1)); }
+| TK_ID TK_LPAR caller_arg_list TK_RPAR { call($1) ;}
+| TK_LPAR e_expr TK_RPAR 
+;
+
+expr: 
+  e_expr
+;
+
+/* -------------------------------------------------------------- */
+/*                2/ Conditions (e.g. 2*x+y != 0)                 */
+/* -------------------------------------------------------------- */
+
+test: 
+  expr TK_GREATER expr { testg(); }
+| expr TK_NEQ expr { testne(); }
+| expr TK_EQ expr { teste(); }
+| TK_LPAR test TK_RPAR
+;
+
+/* -------------------------------------------------------------- */
+/*                 3/ Statements (e.g. if, while)                 */
+/* -------------------------------------------------------------- */
+
+
+stmt:
+
+/* ---                ASSIGNMENT (e.g. x := e;)                -- */
+
+  TK_ID TK_ASSIGN expr TK_SEMI { pop(get_slot($1)); }
+
+/* ---                    CONDITIONAL (IF)                     -- */
+
+| TK_IF test 
+    { 
+      string label_else = new_label("else"); 
+      jz(label_else); 
+      push_label(label_else);
+    } 
+  stmt_block 
+    {
+      string label_else = pop_label();
+      string label_endif = new_label("endif");
+      jmp(label_endif);
+      label(label_else);
+      push_label(label_endif);
+    }
+  stmt_else
+    {
+      string label_endif = pop_label();
+      label(label_endif);
+    }
+  
+/* ---                       WHILE                             -- */
+
+| TK_WHILE 
+    {
+      string label_while = new_label("while");
+      label(label_while);
+      push_label(label_while);
+    }
+  test 
+    {
+      string label_endwhile = new_label("endwhile");
+      jz(label_endwhile);
+      push_label(label_endwhile);
+    }
+  stmt_block
+    {
+      string label_endwhile = pop_label();
+      string label_while = pop_label();
+      jmp(label_while);
+      label(label_endwhile);
+    }
+
+/* ---                       DO/WHILE                             -- */
+
+| TK_DO
+    {
+      string label_while = new_label("while");
+      label(label_while);
+      push_label(label_while);
+    }
+  stmt_block
+  TK_WHILE test TK_SEMI
+    {
+      string label_endwhile = new_label("endwhile");
+      jz(label_endwhile);
+      string label_while = pop_label();
+      label(label_endwhile);
+    }
+
+/* ---                       RETURN                            -- */
+
+| TK_RETURN expr TK_SEMI { iret(get_nb_argument()); } 
+
+/* ---                        I/O                              -- */
+
+| TK_PRINT TK_LPAR expr TK_RPAR TK_SEMI
+    {
+      call_runtime("print_int");
+      call_runtime("print_newline");
+    }
+
+| TK_INPUT TK_LPAR TK_ID TK_RPAR TK_SEMI
+    {
+      call_runtime("input_int");
+      raw("\tpush\trax");
+      pop(get_slot($3));
+    }
+;
+
+stmt_else:
+| TK_ELSE stmt_block
+;
+
+stmt_block:
+  stmt
+| TK_LACC stmt_list TK_RACC
+
+stmt_list:
+| stmt_list stmt
+;
+
+
+/* -------------------------------------------------------------- */
+/*              4/ Variable declarations (e.g. int x,y;)          */
+/* -------------------------------------------------------------- */
+
+declare_args:
+| type TK_ID { declare_argument($2); }
+| type TK_ID TK_COMMA declare_args { declare_argument($2); }
+;
+
+declare_local_vars:
+| declare_local_vars type TK_ID TK_SEMI { declare_local($3); }
+;
+
+/* -------------------------------------------------------------- */
+/*                 5/ Functions                                   */
+/* -------------------------------------------------------------- */
+
+caller_arg_list:
+| expr
+| caller_arg_list TK_COMMA expr
+;
+
+function: 
+  type TK_ID TK_LPAR { reset_symbol_table(); } declare_args TK_RPAR 
+  TK_LACC declare_local_vars 
+{
+  /*
+    Après l'accolade ouvrante, on définit un label (au cas où la fonction serait
+    récursive) pour la fonction définie par TK_ID ($2) et on alloue le nombre de
+    variables locales. 
+  */
+  label($2);
+  alloc(get_nb_local());
+}
+  stmt_list 
+{
+  /*
+    Après la liste des statements et avant l'accolade fermante du corps d'une
+    fonction, il faut désallouer l'espace alloué pour les variables locales et
+    sauter à @retour. On utilise pour cela les instructions free() puis ret().
+
+    Note : on gère ici un cas général où une valeur de retour n'est pas
+    forcément spécifiée. Après une liste de statements, l'issue nominale d'une
+    fonction est un jump vers @retour. Le traitement du cas où il y aurait une 
+    valeur de retour (iret) se fera en tant qu'une statement spécifique dans 
+    stmt_list. Étant donné qu'iret() s'occupe à la fois de désallouer les 
+    variables déclarées, de remonter la valeur de retour dans la pile et de
+    jump vers @retour, la fonction ret() ci-dessous ne posera pas problème,
+    elle sera court-circuitée de toute manière.
+  */
+  free();
+  ret(get_nb_argument());
+}
+  TK_RACC
+;
+
+function_list:
+| function_list function
+;
+
+/* -------------------------------------------------------------- */
+/*      5/ *Main production* (program=declarations+statements)    */
+/* -------------------------------------------------------------- */
+
+prog: 
+  { call("main"); raw("\tmov\trax,0"); ret(0); } function_list function
+;
